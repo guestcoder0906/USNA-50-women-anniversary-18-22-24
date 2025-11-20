@@ -11,6 +11,20 @@ enum Tab {
 const ShareStory: React.FC = () => {
   const [activeTab, setActiveTab] = useState<Tab>(Tab.NOMINATE);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [nominationFileName, setNominationFileName] = useState<string | null>(null);
+  const [nominationFileBase64, setNominationFileBase64] = useState<string | null>(null);
+
+  const handleNominationFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      const file = event.target.files[0];
+      setNominationFileName(file.name);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setNominationFileBase64(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
@@ -18,12 +32,22 @@ const ShareStory: React.FC = () => {
       try {
           const formData = new FormData(e.currentTarget);
           const data = Object.fromEntries(formData.entries());
+
+          // If uploading a file, use the base64 state instead of the file object
+          if (activeTab === Tab.NOMINATE) {
+             delete data.file;
+             if (nominationFileName) data.fileName = nominationFileName;
+             if (nominationFileBase64) data.imageBase64 = nominationFileBase64;
+          }
           
           await saveSubmission(activeTab, data);
           alert("Submission received! Thank you for sharing.");
           e.currentTarget.reset();
+          setNominationFileName(null);
+          setNominationFileBase64(null);
       } catch (error) {
-          alert("An error occurred. Please try again.");
+          console.error(error);
+          alert("An error occurred. Please ensure API configuration is correct.");
       } finally {
           setIsSubmitting(false);
       }
@@ -52,11 +76,12 @@ const ShareStory: React.FC = () => {
             <textarea name="reason" required rows={4} placeholder="Reason for Nomination (The Story)" className="input-field" />
              <div className="flex flex-col space-y-2">
                 <label className="text-sm font-medium text-slate-700">Upload Pictures/Video</label>
-                <input name="file" type="file" className="text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-navy-50 file:text-navy-700 hover:file:bg-navy-100"/>
+                <input name="file" type="file" onChange={handleNominationFileChange} className="text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-navy-50 file:text-navy-700 hover:file:bg-navy-100"/>
+                {nominationFileName && <p className="text-xs font-semibold text-green-600">Selected: {nominationFileName}</p>}
              </div>
             <button type="submit" disabled={isSubmitting} className="btn-primary w-full flex justify-center items-center gap-2">
                 {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
-                {isSubmitting ? 'Uploading...' : 'Submit Nomination'}
+                {isSubmitting ? 'Uploading to Canto...' : 'Submit Nomination'}
             </button>
           </form>
         );

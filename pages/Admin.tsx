@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getSubmissions, clearAllSubmissions, Submission } from '../services/storageService.ts';
-import { Trash2, RefreshCw, Database, Lock, ArrowLeft, ShieldCheck, Loader2, Cloud, HardDrive } from 'lucide-react';
+import { Trash2, RefreshCw, Database, Lock, ArrowLeft, ArrowRight, ShieldCheck, Loader2, Cloud, HardDrive, AlertCircle } from 'lucide-react';
 
 const Admin: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -20,6 +20,7 @@ const Admin: React.FC = () => {
       setSubmissions(data);
     } catch (err) {
       console.error("Failed to load data", err);
+      setError("Failed to fetch data from Canto. Check console/config.");
     } finally {
       setIsLoading(false);
     }
@@ -44,6 +45,7 @@ const Admin: React.FC = () => {
   const handleLogout = () => {
     setIsAuthenticated(false);
     setPasswordInput('');
+    setSubmissions([]);
   };
 
   const handleBackToHome = () => {
@@ -51,10 +53,8 @@ const Admin: React.FC = () => {
   };
 
   const handleClear = async () => {
-    if (confirm("Are you sure you want to delete all LOCALLY stored submissions? Data in Canto will remain untouched.")) {
-      await clearAllSubmissions();
-      await loadData(); // Reload data after clearing
-    }
+    // Only alert now, as we removed the clearing logic for Canto safety
+    await clearAllSubmissions();
   };
 
   // Login Screen
@@ -67,7 +67,7 @@ const Admin: React.FC = () => {
               <Lock className="w-8 h-8 text-navy-900" />
             </div>
             <h1 className="text-2xl font-serif font-bold text-navy-900">Admin Access</h1>
-            <p className="text-slate-500 text-sm mt-2">View Canto & Local Submissions</p>
+            <p className="text-slate-500 text-sm mt-2">View Canto Data Repository</p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-6">
@@ -131,16 +131,13 @@ const Admin: React.FC = () => {
                         <Database className="w-8 h-8 text-gold-500" />
                         Admin Dashboard
                     </h1>
-                    <p className="text-slate-500 mt-1 text-sm">Canto & Local Data Integration</p>
+                    <p className="text-slate-500 mt-1 text-sm">Canto Global Storage</p>
                 </div>
             </div>
             <div className="flex gap-3 w-full md:w-auto">
                 <button onClick={loadData} disabled={isLoading} className="flex-1 md:flex-none justify-center flex items-center gap-2 px-4 py-2 bg-white border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors shadow-sm disabled:opacity-50">
                     {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />} 
-                    Refresh
-                </button>
-                <button onClick={handleClear} className="flex-1 md:flex-none justify-center flex items-center gap-2 px-4 py-2 bg-red-50 border border-red-200 rounded-lg text-red-700 hover:bg-red-100 transition-colors shadow-sm">
-                    <Trash2 className="w-4 h-4" /> Clear Local
+                    Refresh Data
                 </button>
                 <button onClick={handleLogout} className="flex-1 md:flex-none justify-center flex items-center gap-2 px-4 py-2 bg-navy-800 text-white rounded-lg hover:bg-navy-700 transition-colors shadow-sm">
                     <Lock className="w-4 h-4" /> Logout
@@ -160,7 +157,7 @@ const Admin: React.FC = () => {
                         : 'bg-white text-slate-500 hover:text-navy-900 hover:bg-slate-50'
                     }`}
                 >
-                    {type === 'ALL' ? 'All Submissions' : type}
+                    {type === 'ALL' ? 'All Records' : type}
                 </button>
             ))}
         </div>
@@ -168,14 +165,15 @@ const Admin: React.FC = () => {
         {/* Table */}
         <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-slate-200">
             {isLoading ? (
-                <div className="p-16 flex justify-center items-center text-navy-800">
+                <div className="p-16 flex justify-center items-center flex-col gap-4 text-navy-800">
                     <Loader2 className="w-10 h-10 animate-spin" />
+                    <p>Fetching data from Canto...</p>
                 </div>
             ) : filteredSubmissions.length === 0 ? (
                 <div className="p-16 text-center text-slate-500 flex flex-col items-center">
-                    <Database className="w-12 h-12 text-slate-300 mb-4" />
-                    <p className="text-lg font-semibold">No records found</p>
-                    <p className="text-sm">Try changing the filter or checking Canto connectivity.</p>
+                    <Cloud className="w-12 h-12 text-slate-300 mb-4" />
+                    <p className="text-lg font-semibold">No records found in Canto</p>
+                    <p className="text-sm mt-2">Ensure you have connected your Canto API credentials in the code.</p>
                 </div>
             ) : (
                 <div className="overflow-x-auto">
@@ -183,24 +181,19 @@ const Admin: React.FC = () => {
                         <thead className="bg-slate-50">
                             <tr>
                                 <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Source</th>
-                                <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Time</th>
+                                <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Date</th>
                                 <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Type</th>
-                                <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Data Payload</th>
+                                <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Content</th>
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-slate-200">
                             {filteredSubmissions.map((sub) => (
                                 <tr key={sub.id} className="hover:bg-slate-50 transition-colors">
                                     <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                        {sub.source === 'CANTO' ? (
-                                            <span className="flex items-center gap-1 text-blue-600 font-bold text-xs bg-blue-50 px-2 py-1 rounded border border-blue-100">
-                                                <Cloud className="w-3 h-3" /> CANTO
-                                            </span>
-                                        ) : (
-                                            <span className="flex items-center gap-1 text-slate-500 font-bold text-xs bg-slate-100 px-2 py-1 rounded border border-slate-200">
-                                                <HardDrive className="w-3 h-3" /> LOCAL
-                                            </span>
-                                        )}
+                                        <span className="flex items-center gap-1 text-blue-600 font-bold text-xs bg-blue-50 px-2 py-1 rounded border border-blue-100 w-fit">
+                                            <Cloud className="w-3 h-3" /> CANTO
+                                        </span>
+                                        <div className="text-[10px] text-slate-400 mt-1 font-mono">{sub.id}</div>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
                                         <div className="font-medium">{new Date(sub.timestamp).toLocaleDateString()}</div>
@@ -208,7 +201,7 @@ const Admin: React.FC = () => {
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <span className={`px-3 py-1 text-xs font-bold rounded-full inline-flex items-center ${
-                                            sub.type === 'EXHIBIT' || sub.type === 'PLEDGE' ? 'bg-purple-100 text-purple-800' :
+                                            sub.type === 'PLEDGE' || sub.type === 'EXHIBIT' ? 'bg-purple-100 text-purple-800' :
                                             sub.type === 'NOMINATE' ? 'bg-blue-100 text-blue-800' :
                                             sub.type === 'SHOUTOUT' ? 'bg-gold-100 text-navy-900' :
                                             'bg-pink-100 text-pink-800'
@@ -219,21 +212,28 @@ const Admin: React.FC = () => {
                                     <td className="px-6 py-4 text-sm text-slate-700">
                                         <div className="bg-slate-50 p-3 rounded-lg border border-slate-200 font-mono text-xs overflow-x-auto max-w-2xl">
                                             {Object.entries(sub.data)
-                                                .filter(([key]) => key !== 'imageBase64' && key !== 'submissionType' && key !== 'submissionDate')
+                                                .filter(([key]) => key !== 'imageBase64' && key !== 'submissionType' && key !== 'submissionDate' && key !== 'raw')
                                                 .map(([key, value]) => (
                                                 <div key={key} className="mb-1 last:mb-0 break-words">
                                                     <span className="text-slate-500 font-semibold">{key}:</span> <span className="text-navy-900">{String(value)}</span>
                                                 </div>
                                             ))}
-                                            {/* Display Image: Priority to Canto URL, then Base64 */}
-                                            {(sub.cantoUrl || sub.data.imageBase64) && (
-                                                <div className="mt-2">
-                                                    <p className="text-xs font-bold text-slate-400 mb-1">ATTACHMENT:</p>
-                                                    <img 
-                                                        src={sub.cantoUrl || (sub.data.imageBase64 as string)} 
-                                                        alt="Submission Attachment" 
-                                                        className="rounded-md border border-slate-300 max-w-xs max-h-48 object-contain bg-white" 
-                                                    />
+                                            {sub.data.raw && (
+                                                <div className="text-slate-400 italic">Raw desc: {String(sub.data.raw).substring(0, 50)}...</div>
+                                            )}
+                                            {/* Display Image Link */}
+                                            {sub.cantoUrl && (
+                                                <div className="mt-2 pt-2 border-t border-slate-200">
+                                                    <a href={sub.cantoUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 flex items-center gap-1 font-bold">
+                                                        View Asset <ArrowRight className="w-3 h-3" />
+                                                    </a>
+                                                    {sub.type === 'NOMINATE' && (
+                                                        <img 
+                                                            src={sub.cantoUrl} 
+                                                            alt="Attachment" 
+                                                            className="mt-2 rounded-md border border-slate-300 h-24 object-cover bg-white" 
+                                                        />
+                                                    )}
                                                 </div>
                                             )}
                                         </div>

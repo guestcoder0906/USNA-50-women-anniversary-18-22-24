@@ -61,7 +61,8 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
         alert("Thank you for your pledge!");
         e.currentTarget.reset();
     } catch (error) {
-        alert("Something went wrong. Please try again.");
+        console.error(error);
+        alert("Could not save pledge. Please check your connection or configuration.");
     } finally {
         setIsSubmittingPledge(false);
     }
@@ -88,7 +89,8 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
           const data = Object.fromEntries(formData.entries());
           
           if (activeShareTab === ShareStoryTab.NOMINATE) {
-            delete data.file; // Remove original file object
+            // Remove the File object as we can't serialize it easily, use Base64
+            delete data.file; 
             if (nominationFileName) {
               data.fileName = nominationFileName;
             }
@@ -104,7 +106,8 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
           setNominationFileName(null);
           setNominationFileBase64(null);
       } catch (error) {
-          alert("Error submitting story. Please try again.");
+          console.error(error);
+          alert("Error submitting story. Please ensure API is configured.");
       } finally {
           setIsSubmittingStory(false);
       }
@@ -139,7 +142,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
              </div>
             <button type="submit" disabled={isSubmittingStory} className="btn-primary w-full flex justify-center items-center gap-2">
                 {isSubmittingStory && <Loader2 className="w-4 h-4 animate-spin" />}
-                {isSubmittingStory ? 'Uploading...' : 'Submit Nomination'}
+                {isSubmittingStory ? 'Uploading to Canto...' : 'Submit Nomination'}
             </button>
           </form>
         );

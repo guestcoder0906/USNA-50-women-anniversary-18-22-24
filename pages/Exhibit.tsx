@@ -16,7 +16,8 @@ const Exhibit: React.FC = () => {
         alert("Thank you for your pledge!");
         e.currentTarget.reset();
     } catch (error) {
-        alert("Error submitting pledge. Please try again.");
+        console.error(error);
+        alert("Error submitting pledge. Please try again later.");
     } finally {
         setIsSubmitting(false);
     }
@@ -96,7 +97,7 @@ const Exhibit: React.FC = () => {
                 <div className="pt-4">
                     <button type="submit" disabled={isSubmitting} className="w-full bg-navy-800 text-white font-bold py-3.5 px-8 rounded-lg shadow-lg hover:bg-navy-700 transition-all flex justify-center items-center gap-2 disabled:opacity-70">
                         {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
-                        {isSubmitting ? 'Submitting...' : 'Submit Pledge'}
+                        {isSubmitting ? 'Processing...' : 'Submit Pledge'}
                     </button>
                 </div>
               </form>
