@@ -1,8 +1,9 @@
+
 import React from 'react';
 import { Check, ArrowRight } from 'lucide-react';
 
 // IMPORTANT: Replace this with the actual URL for your event registration platform.
-const REGISTRATION_PORTAL_URL = 'https://your-registration-portal.com';
+const REGISTRATION_PORTAL_URL = 'https://signupnow.events/Default_Forum.aspx?OrgId=1066&eid=1158&OrgName=USNAWomen50';
 
 const Register: React.FC = () => {
 
@@ -27,30 +28,24 @@ const Register: React.FC = () => {
             Registration grants you access to the full weekend of curated events and experiences.
           </p>
 
-          <div className="space-y-4 mb-10">
-            <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-lg border border-slate-200">
-              <Check className="w-5 h-5 text-green-600 shrink-0 mt-1" />
-              <div>
-                <h4 className="font-semibold text-navy-800">All Conference Sessions</h4>
-                <p className="text-sm text-slate-500">Access to all inspiring speakers and professional development panels.</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-lg border border-slate-200">
-              <Check className="w-5 h-5 text-green-600 shrink-0 mt-1" />
-              <div>
-                <h4 className="font-semibold text-navy-800">50th Anniversary Gala</h4>
-                <p className="text-sm text-slate-500">An elegant evening of celebration at the Fluegel Alumni Center.</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-lg border border-slate-200">
-              <Check className="w-5 h-5 text-green-600 shrink-0 mt-1" />
-              <div>
-                <h4 className="font-semibold text-navy-800">Networking Opportunities</h4>
-                <p className="text-sm text-slate-500">Connect with alumnae, midshipmen, and distinguished guests.</p>
-              </div>
-            </div>
+          <div className="bg-gold-50 p-4 rounded-lg border border-gold-100 mb-4 text-center">
+            <p className="text-navy-800 text-sm font-semibold">
+              Early Bird Registration Ends January 15th!
+            </p>
+            <p className="text-navy-800 text-sm">
+              Conference: <span className="font-bold">$200</span> | Gala: <span className="font-bold">$175</span>
+            </p>
           </div>
-          
+
+          <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 mb-8 text-center">
+            <p className="text-navy-800 text-sm font-semibold">
+              Regular Registration Ends April 1st!
+            </p>
+            <p className="text-navy-800 text-sm">
+              Conference: <span className="font-bold">$250</span> | Gala: <span className="font-bold">$200</span>
+            </p>
+          </div>
+
           <button 
             onClick={handleRegisterClick}
             className="w-full bg-gold-500 text-navy-900 font-bold py-4 px-8 rounded-lg shadow-lg hover:bg-gold-400 transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2 text-lg"

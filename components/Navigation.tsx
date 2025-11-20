@@ -12,8 +12,8 @@ const Navigation: React.FC<NavigationProps> = ({ activeLink, onNavigate }) => {
 
   const navItems: NavItem[] = [
     { label: 'Home', view: PageView.HOME },
-    { label: 'The 50th Exhibit', view: PageView.EXHIBIT },
-    { label: 'Share Your Story', view: PageView.SHARE_STORY },
+    { label: 'Class Spotlight', view: PageView.SHARE_STORY },
+    { label: 'Class Sponsorship Challenge', view: PageView.EXHIBIT },
     { label: 'Register Now', view: PageView.REGISTER },
   ];
 
@@ -22,18 +22,36 @@ const Navigation: React.FC<NavigationProps> = ({ activeLink, onNavigate }) => {
     setIsMobileMenuOpen(false);
   };
 
+  // Years for the crests display
+  const years = [2018, 2022, 2023, 2024, 2025];
+
   return (
     <nav className="sticky top-0 z-40 bg-navy-800 text-white shadow-lg border-b-4 border-gold-500">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-20 items-center">
-          {/* Logo Area */}
-          <div className="flex items-center cursor-pointer" onClick={() => handleNavClick(PageView.HOME)}>
-            <div className="flex-shrink-0 bg-gold-500 p-2 rounded-full mr-3">
-              <Anchor className="h-6 w-6 text-navy-900" />
+          <div className="flex items-center">
+            {/* Logo Area */}
+            <div className="flex items-center cursor-pointer" onClick={() => handleNavClick(PageView.HOME)}>
+              <div className="flex-shrink-0 bg-gold-500 p-2 rounded-full mr-3">
+                <Anchor className="h-6 w-6 text-navy-900" />
+              </div>
+              <div className="flex flex-col">
+                <span className="font-serif font-bold text-xl tracking-wide text-gold-400 leading-none">USNA WOMEN</span>
+                <span className="text-xs uppercase tracking-widest text-slate-300">50th Anniversary</span>
+              </div>
             </div>
-            <div className="flex flex-col">
-              <span className="font-serif font-bold text-xl tracking-wide text-gold-400 leading-none">USNA WOMEN</span>
-              <span className="text-xs uppercase tracking-widest text-slate-300">50th Anniversary</span>
+
+            {/* Class Crests Row - Next to Logo */}
+            <div className="hidden xl:flex items-center space-x-2 ml-8 border-l border-navy-700 pl-8 h-12">
+                {years.map(year => (
+                    <div key={year} className="h-10 w-8 bg-navy-900 border border-gold-600/30 rounded-sm flex items-center justify-center text-[10px] font-bold text-gold-400 hover:bg-navy-700 transition-colors cursor-default" title={`Class of ${year}`}>
+                        '{year.toString().slice(2)}
+                    </div>
+                    /* 
+                       NOTE: To use real images, replace the div above with:
+                       <img key={year} src={`/path/to/crest-${year}.png`} alt={`Class of ${year}`} className="h-10 w-auto object-contain" />
+                    */
+                ))}
             </div>
           </div>
 

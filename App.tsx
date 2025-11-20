@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Navigation from './components/Navigation.tsx';
 import Footer from './components/Footer.tsx';
-import EventAssistant from './components/EventAssistant.tsx';
 import Home from './pages/Home.tsx';
 import Register from './pages/Register.tsx';
 import Admin from './pages/Admin.tsx';
@@ -82,7 +81,6 @@ const App: React.FC = () => {
       
       {currentView !== PageView.ADMIN && <Footer />}
       
-      <EventAssistant />
     </div>
   );
 };

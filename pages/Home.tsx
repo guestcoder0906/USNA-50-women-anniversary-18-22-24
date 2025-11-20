@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar, MapPin, Users, User, Heart, Award, ArrowRight, Upload, Clock, Mail, PenTool, Megaphone } from 'lucide-react';
+import { Calendar, MapPin, Users, User, Heart, Award, ArrowRight, PenTool, Clock, Mail, Megaphone } from 'lucide-react';
 import { ScheduleItem, PageView } from '../types.ts';
 import { saveSubmission } from '../services/storageService.ts';
 
@@ -16,10 +16,6 @@ interface HomeProps {
 }
 
 const Home: React.FC<HomeProps> = ({ onNavigate }) => {
-  // State for Exhibit Form
-  const [exhibitFileName, setExhibitFileName] = useState<string | null>(null);
-  const [exhibitFileBase64, setExhibitFileBase64] = useState<string | null>(null);
-
   // State for Share Story Form
   const [activeShareTab, setActiveShareTab] = useState<ShareStoryTab>(ShareStoryTab.NOMINATE);
   const [nominationFileName, setNominationFileName] = useState<string | null>(null);
@@ -50,38 +46,15 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
   ];
 
   // --- Form Handlers ---
-  const handleExhibitFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files[0]) {
-      const file = event.target.files[0];
-      setExhibitFileName(file.name);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setExhibitFileBase64(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleExhibitSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handlePledgeSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
     
-    delete data.file; // Remove the file object which doesn't serialize
-
-    if (exhibitFileName) {
-        data.fileName = exhibitFileName;
-    }
-    if (exhibitFileBase64) {
-        data.imageBase64 = exhibitFileBase64;
-    }
-
-    saveSubmission('EXHIBIT', data);
-    alert("Thank you! Your memory has been submitted.");
+    saveSubmission('PLEDGE', data);
+    alert("Thank you for your pledge!");
     
     e.currentTarget.reset();
-    setExhibitFileName(null);
-    setExhibitFileBase64(null);
   };
 
   const handleNominationFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -134,10 +107,13 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <input name="email" required type="email" placeholder="Your Email" className="input-field" />
               <input name="nomineeName" required type="text" placeholder="Name of Nominee" className="input-field" />
-              <input name="company" type="text" placeholder="Company Name" className="input-field" />
-              <input name="background" type="text" placeholder="Major / Sports / ECAs" className="input-field" />
+              <input name="major" type="text" placeholder="Major" className="input-field" />
+              <input name="sportsEcas" type="text" placeholder="Sports / ECAs" className="input-field" />
             </div>
-            <input name="service" type="text" placeholder="USNA Billets / Service Selection" className="input-field" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <input name="usnaBillets" type="text" placeholder="USNA Billets" className="input-field" />
+              <input name="serviceSelection" type="text" placeholder="Service Selection" className="input-field" />
+            </div>
             <textarea name="reason" required rows={4} placeholder="Reason for Nomination (The Story)" className="input-field" />
              <div className="flex flex-col space-y-2">
                 <label className="text-sm font-medium text-slate-700">Upload Pictures/Video</label>
@@ -155,11 +131,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
                 "BZ" (Bravo Zulu) means "Well Done". Give a public congratulations to a classmate or fellow alumna!
               </p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <input name="yourName" required type="text" placeholder="Your Name" className="input-field" />
-              <input name="yourEmail" required type="email" placeholder="Your Email" className="input-field" />
-            </div>
-            <input name="recipient" required type="text" placeholder="Recipient's Name and Class Year" className="input-field" />
+            <input name="recipient" required type="text" placeholder="Recipient's Initials and Class Year (Ex: IP '24)" className="input-field" />
             <textarea name="message" required rows={3} placeholder="Your Shoutout Message" className="input-field" />
             <button type="submit" className="btn-primary w-full">Submit BZ Shoutout</button>
           </form>
@@ -172,11 +144,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
                 Send messages of love and support to midshipmen and alumnae serving around the globe.
               </p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <input name="yourName" required type="text" placeholder="Your Name" className="input-field" />
-              <input name="relationship" required type="text" placeholder="Relationship to Recipient" className="input-field" />
-            </div>
-            <input name="recipient" required type="text" placeholder="Recipient's Full Name" className="input-field" />
+            <input name="initials" required type="text" placeholder="Recipient Initials and Class Year (Ex: IP '24)" className="input-field" />
             <textarea name="message" required rows={3} placeholder="Your Message" className="input-field" />
             <button type="submit" className="btn-primary w-full">Send Message</button>
           </form>
@@ -192,11 +160,13 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
                 width: 100%;
                 padding: 0.75rem 1rem;
                 border-radius: 0.5rem;
+                background-color: #f1f5f9;
                 border: 1px solid #e2e8f0;
                 outline: none;
                 transition: all 0.2s;
             }
             .input-field:focus {
+                background-color: #ffffff;
                 border-color: #C5B358;
                 box-shadow: 0 0 0 2px rgba(197, 179, 88, 0.2);
             }
@@ -217,7 +187,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
       <section className="relative bg-navy-900 text-white py-20 lg:py-32 overflow-hidden">
         <div className="absolute inset-0 opacity-20">
              {/* Placeholder for a background image of the academy or abstract navy theme */}
-            <img src="https://picsum.photos/1920/1080?grayscale&blur=2" alt="Background" className="w-full h-full object-cover" />
+            <img src="everything.png" alt="Background" className="w-full h-full object-cover" />
         </div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <div className="inline-block mb-4 px-4 py-1 rounded-full border border-gold-500 text-gold-400 text-sm font-semibold uppercase tracking-widest bg-navy-900/50 backdrop-blur-sm">
@@ -312,7 +282,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col md:flex-row justify-between items-end mb-12 border-b border-slate-200 pb-4">
                 <div>
-                    <h2 className="text-3xl font-serif font-bold text-navy-800">Weekend Schedule</h2>
+                    <h2 className="text-3xl font-serif font-bold text-navy-800">Conference Schedule</h2>
                     <p className="text-slate-500 mt-2">An overview of the key events planned.</p>
                 </div>
                 <button onClick={() => onNavigate(PageView.REGISTER)} className="hidden md:flex items-center text-gold-600 font-bold hover:text-gold-700 mt-4 md:mt-0">
@@ -359,73 +329,39 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
       <section id="exhibit-section" className="bg-slate-50 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-serif font-bold text-navy-900 mb-4">The 50 Year Exhibit</h2>
+            <h2 className="text-4xl font-serif font-bold text-navy-900 mb-4">Class Sponsorship Challenge</h2>
             <p className="text-lg text-slate-600 max-w-3xl mx-auto">
-              In partnership with the <span className="font-semibold text-navy-800">Historic Museum of Annapolis</span>, 
-              we are creating a permanent exhibit and digital repository.
+              If you are interested in supporting the event, take the pledge to donate for your class. In order to participate in the Sponsorship Challenge a class needs a minimum of $10K
             </p>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
             <div className="lg:col-span-1 space-y-8">
               {/* Deadlines & Contact */}
             </div>
-            <div className="lg:col-span-2">
+            <div className="lg:col-span-2 flex justify-center">
               <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12 border-t-4 border-gold-500">
                 <div className="flex items-center gap-3 mb-8">
-                  <div className="bg-navy-50 p-3 rounded-full"><Upload className="w-6 h-6 text-navy-800" /></div>
+                  <div className="bg-navy-50 p-3 rounded-full"><Heart className="w-6 h-6 text-navy-800" /></div>
                   <div>
-                    <h3 className="text-2xl font-bold text-navy-900">Upload Your Memories</h3>
-                    <p className="text-slate-500 text-sm">Help us tell our story for future generations.</p>
+                    <h3 className="text-2xl font-bold text-navy-900">Take the pledge</h3>
+                    <p className="text-slate-500 text-sm">Support the Class Sponsorship Challenge.</p>
                   </div>
                 </div>
-                <form onSubmit={handleExhibitSubmit} className="space-y-6">
-                  {/* Form fields from original Exhibit page */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-1">First & Last Name</label>
-                      <input name="fullName" required type="text" className="input-field" placeholder="Jane Doe" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-1">Email Address</label>
-                      <input name="email" required type="email" className="input-field" placeholder="jane@example.com" />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                          <label className="block text-sm font-medium text-slate-700 mb-1">Class Year</label>
-                          <input name="classYear" required type="text" className="input-field" placeholder="e.g. 1982" />
-                      </div>
-                      <div>
-                          <label className="block text-sm font-medium text-slate-700 mb-1">Date of Photo (Approx.)</label>
-                          <input name="photoDate" type="text" className="input-field" placeholder="Month / Year" />
-                      </div>
+                <form onSubmit={handlePledgeSubmit} className="space-y-6">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Email Address</label>
+                    <input name="email" required type="email" className="input-field" placeholder="jane@example.com" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Context of the Photo</label>
-                    <textarea name="context" rows={3} className="input-field" placeholder="Describe the event, location..."></textarea>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Class Year</label>
+                    <input name="classYear" required type="text" className="input-field" placeholder="Ex: '82 or '24" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Who is in the photo?</label>
-                    <textarea name="people" rows={2} className="input-field" placeholder="List names and class years..."></textarea>
-                  </div>
-                  <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">Digital Image</label>
-                      <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-slate-300 border-dashed rounded-xl">
-                          <div className="space-y-1 text-center">
-                          <Upload className="mx-auto h-12 w-12 text-slate-400" />
-                          <div className="flex text-sm text-slate-600 justify-center">
-                              <label htmlFor="file-upload" className="relative cursor-pointer bg-white rounded-md font-medium text-navy-600 hover:text-navy-500">
-                              <span>Upload a file</span>
-                              <input id="file-upload" name="file" type="file" className="sr-only" onChange={handleExhibitFileChange} />
-                              </label>
-                              <p className="pl-1">or drag and drop</p>
-                          </div>
-                          {exhibitFileName && <p className="text-sm font-semibold text-green-600 mt-2">Selected: {exhibitFileName}</p>}
-                          </div>
-                      </div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Donation Amount ($)</label>
+                    <input name="donationAmount" required type="number" min="1" className="input-field" placeholder="100" />
                   </div>
                   <div className="pt-4">
-                      <button type="submit" className="w-full btn-primary py-3.5">Submit Contribution</button>
+                      <button type="submit" className="w-full btn-primary py-3.5">Submit Pledge</button>
                   </div>
                 </form>
               </div>
@@ -438,13 +374,13 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
       <section id="share-story-section" className="bg-white py-16">
         <div className="max-w-4xl mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-serif font-bold text-navy-900 mb-4">Share Your Story</h2>
+            <h2 className="text-4xl font-serif font-bold text-navy-900 mb-4">Class Spotlight</h2>
             <p className="text-slate-600">Contribute by sharing nominations, shoutouts, and messages.</p>
           </div>
           <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200">
             <div className="flex flex-col md:flex-row border-b border-slate-200">
                <button onClick={() => setActiveShareTab(ShareStoryTab.NOMINATE)} className={`flex-1 p-6 flex items-center justify-center gap-3 text-sm font-bold transition-all hover:bg-slate-50 ${activeShareTab === ShareStoryTab.NOMINATE ? 'text-navy-900 border-b-4 border-navy-900 bg-slate-50' : 'text-slate-500'}`}>
-                  <PenTool className="w-5 h-5" /> Article Nomination
+                  <PenTool className="w-5 h-5" /> Article Nominations
               </button>
               <button onClick={() => setActiveShareTab(ShareStoryTab.SHOUTOUT)} className={`flex-1 p-6 flex items-center justify-center gap-3 text-sm font-bold transition-all hover:bg-slate-50 ${activeShareTab === ShareStoryTab.SHOUTOUT ? 'text-gold-600 border-b-4 border-gold-500 bg-slate-50' : 'text-slate-500'}`}>
                   <Megaphone className="w-5 h-5" /> BZ Shoutout

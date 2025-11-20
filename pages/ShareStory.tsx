@@ -34,10 +34,13 @@ const ShareStory: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <input name="email" required type="email" placeholder="Your Email" className="input-field" />
               <input name="nomineeName" required type="text" placeholder="Name of Nominee" className="input-field" />
-              <input name="company" type="text" placeholder="Company Name" className="input-field" />
-              <input name="background" type="text" placeholder="Major / Sports / ECAs" className="input-field" />
+              <input name="major" type="text" placeholder="Major" className="input-field" />
+              <input name="sportsEcas" type="text" placeholder="Sports / ECAs" className="input-field" />
             </div>
-            <input name="service" type="text" placeholder="USNA Billets / Service Selection" className="input-field" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <input name="usnaBillets" type="text" placeholder="USNA Billets" className="input-field" />
+              <input name="serviceSelection" type="text" placeholder="Service Selection" className="input-field" />
+            </div>
             <textarea name="reason" required rows={4} placeholder="Reason for Nomination (The Story)" className="input-field" />
              <div className="flex flex-col space-y-2">
                 <label className="text-sm font-medium text-slate-700">Upload Pictures/Video</label>
@@ -54,11 +57,7 @@ const ShareStory: React.FC = () => {
                 "BZ" (Bravo Zulu) means "Well Done". Give a public congratulations to a classmate or fellow alumna!
               </p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <input name="yourName" required type="text" placeholder="Your Name" className="input-field" />
-              <input name="yourEmail" required type="email" placeholder="Your Email" className="input-field" />
-            </div>
-            <input name="recipient" required type="text" placeholder="Recipient's Name and Class Year" className="input-field" />
+            <input name="recipient" required type="text" placeholder="Recipient's Initials and Class Year (Ex: IP '24)" className="input-field" />
             <textarea name="message" required rows={3} placeholder="Your Shoutout Message" className="input-field" />
             <button type="submit" className="btn-primary w-full">Submit BZ Shoutout</button>
           </form>
@@ -71,11 +70,7 @@ const ShareStory: React.FC = () => {
                 Send messages of love and support to midshipmen and alumnae serving around the globe.
               </p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <input name="yourName" required type="text" placeholder="Your Name" className="input-field" />
-              <input name="relationship" required type="text" placeholder="Relationship to Recipient" className="input-field" />
-            </div>
-            <input name="recipient" required type="text" placeholder="Recipient's Full Name" className="input-field" />
+            <input name="initials" required type="text" placeholder="Recipient Initials and Class Year (Ex: IP '24)" className="input-field" />
             <textarea name="message" required rows={3} placeholder="Your Message" className="input-field" />
             <button type="submit" className="btn-primary w-full">Send Message</button>
           </form>
@@ -90,11 +85,13 @@ const ShareStory: React.FC = () => {
                 width: 100%;
                 padding: 0.75rem 1rem;
                 border-radius: 0.5rem;
+                background-color: #f1f5f9;
                 border: 1px solid #e2e8f0;
                 outline: none;
                 transition: all 0.2s;
             }
             .input-field:focus {
+                background-color: #ffffff;
                 border-color: #C5B358;
                 box-shadow: 0 0 0 2px rgba(197, 179, 88, 0.2);
             }
@@ -113,7 +110,7 @@ const ShareStory: React.FC = () => {
         `}</style>
       <div className="max-w-4xl mx-auto px-4">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-serif font-bold text-navy-900 mb-4">Share Your Story</h1>
+          <h1 className="text-4xl font-serif font-bold text-navy-900 mb-4">Class Spotlight</h1>
           <p className="text-slate-600">Contribute to the celebration by sharing nominations, shoutouts, and messages from home.</p>
         </div>
 
@@ -125,7 +122,7 @@ const ShareStory: React.FC = () => {
                 className={`flex-1 p-6 flex items-center justify-center gap-3 text-sm font-bold transition-all hover:bg-slate-50 ${activeTab === Tab.NOMINATE ? 'text-navy-900 border-b-4 border-navy-900 bg-slate-50' : 'text-slate-500'}`}
             >
                 <PenTool className="w-5 h-5" />
-                Article Nomination
+                Article Nominations
             </button>
             <button 
                 onClick={() => setActiveTab(Tab.SHOUTOUT)}

@@ -1,32 +1,19 @@
 import React, { useState } from 'react';
-import { Upload, Info, Clock, Mail } from 'lucide-react';
+import { Upload, Info, Clock, Mail, Heart, Linkedin } from 'lucide-react';
 import { saveSubmission } from '../services/storageService.ts';
 
 const Exhibit: React.FC = () => {
-  const [fileName, setFileName] = useState<string | null>(null);
-
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files[0]) {
-      setFileName(event.target.files[0].name);
-    }
-  };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
     
-    // Add the filename manually since file inputs are tricky to serialize directly in this demo
-    if (fileName) {
-        data.fileName = fileName;
-    }
-
-    saveSubmission('EXHIBIT', data);
-    alert("Thank you! Your memory has been uploaded to the repository.");
+    saveSubmission('PLEDGE', data);
+    alert("Thank you for your pledge!");
     
     // Reset form
     e.currentTarget.reset();
-    setFileName(null);
   };
 
   return (
@@ -35,10 +22,9 @@ const Exhibit: React.FC = () => {
         
         {/* Header */}
         <div className="text-center mb-16">
-          <h1 className="text-4xl font-serif font-bold text-navy-900 mb-4">The 50 Year Exhibit</h1>
+          <h1 className="text-4xl font-serif font-bold text-navy-900 mb-4">Class Sponsorship Challenge</h1>
           <p className="text-lg text-slate-600 max-w-3xl mx-auto">
-            In partnership with the <span className="font-semibold text-navy-800">Historic Museum of Annapolis</span>, 
-            we are creating a permanent exhibit and digital repository to preserve the history of women at the Academy.
+            If you are interested in supporting the event, take the pledge to donate for your class. In order to participate in the Sponsorship Challenge a class needs a minimum of $10K
           </p>
         </div>
 
@@ -68,81 +54,42 @@ const Exhibit: React.FC = () => {
                 <Mail className="w-5 h-5" />
                 Questions?
               </h3>
-              <p className="text-sm mb-2 text-slate-300">Contact Pamela Pitkin ‘82</p>
-              <p className="text-lg font-mono">703-801-3221</p>
+              <p className="text-sm text-slate-300">
+                Contact <a href="https://www.linkedin.com/in/izabella-peralta-491589308" target="_blank" rel="noopener noreferrer" className="text-gold-400 hover:text-gold-300 transition-colors flex items-center gap-2">Izabella Peralta '24 <Linkedin className="w-4 h-4" /></a>
+              </p>
             </div>
           </div>
 
           {/* Form Column */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 flex justify-center">
             <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12 border-t-4 border-gold-500">
               <div className="flex items-center gap-3 mb-8">
                 <div className="bg-navy-50 p-3 rounded-full">
-                    <Upload className="w-6 h-6 text-navy-800" />
+                    <Heart className="w-6 h-6 text-navy-800" />
                 </div>
                 <div>
-                    <h2 className="text-2xl font-bold text-navy-900">Upload Your Memories</h2>
-                    <p className="text-slate-500 text-sm">Help us tell our story for future generations.</p>
+                    <h2 className="text-2xl font-bold text-navy-900">Take the pledge</h2>
+                    <p className="text-slate-500 text-sm">Support the Class Sponsorship Challenge.</p>
                 </div>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">First & Last Name</label>
-                    <input name="fullName" required type="text" className="w-full rounded-lg border-slate-300 border px-4 py-2.5 focus:ring-2 focus:ring-gold-400 focus:border-gold-400 outline-none transition-all" placeholder="Jane Doe" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Email Address</label>
-                    <input name="email" required type="email" className="w-full rounded-lg border-slate-300 border px-4 py-2.5 focus:ring-2 focus:ring-gold-400 focus:border-gold-400 outline-none transition-all" placeholder="jane@example.com" />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Class Year</label>
-                        <input name="classYear" required type="text" className="w-full rounded-lg border-slate-300 border px-4 py-2.5 focus:ring-2 focus:ring-gold-400 focus:border-gold-400 outline-none transition-all" placeholder="e.g. 1982" />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Date of Photo (Approx.)</label>
-                        <input name="photoDate" type="text" className="w-full rounded-lg border-slate-300 border px-4 py-2.5 focus:ring-2 focus:ring-gold-400 focus:border-gold-400 outline-none transition-all" placeholder="Month / Year" />
-                    </div>
-                </div>
-
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Context of the Photo</label>
-                  <textarea name="context" rows={3} className="w-full rounded-lg border-slate-300 border px-4 py-2 focus:ring-2 focus:ring-gold-400 focus:border-gold-400 outline-none transition-all" placeholder="Describe the event, location, and what is happening..."></textarea>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Email Address</label>
+                  <input name="email" required type="email" className="w-full rounded-lg border-slate-300 border px-4 py-2.5 bg-slate-100 focus:bg-white focus:ring-2 focus:ring-gold-400 focus:border-gold-400 outline-none transition-all" placeholder="jane@example.com" />
                 </div>
-
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Who is in the photo?</label>
-                  <textarea name="people" rows={2} className="w-full rounded-lg border-slate-300 border px-4 py-2 focus:ring-2 focus:ring-gold-400 focus:border-gold-400 outline-none transition-all" placeholder="List names and class years..."></textarea>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Class Year</label>
+                  <input name="classYear" required type="text" className="w-full rounded-lg border-slate-300 border px-4 py-2.5 bg-slate-100 focus:bg-white focus:ring-2 focus:ring-gold-400 focus:border-gold-400 outline-none transition-all" placeholder="Ex: '82 or '24" />
                 </div>
-
-                {/* File Upload */}
                 <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Digital Image</label>
-                    <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-slate-300 border-dashed rounded-xl hover:bg-slate-50 transition-colors relative">
-                        <div className="space-y-1 text-center">
-                        <Upload className="mx-auto h-12 w-12 text-slate-400" />
-                        <div className="flex text-sm text-slate-600 justify-center">
-                            <label htmlFor="file-upload" className="relative cursor-pointer bg-white rounded-md font-medium text-navy-600 hover:text-navy-500 focus-within:outline-none">
-                            <span>Upload a file</span>
-                            <input id="file-upload" name="file" type="file" className="sr-only" onChange={handleFileChange} />
-                            </label>
-                            <p className="pl-1">or drag and drop</p>
-                        </div>
-                        <p className="text-xs text-slate-500">PNG, JPG, GIF up to 10MB</p>
-                        {fileName && (
-                            <p className="text-sm font-semibold text-green-600 mt-2">Selected: {fileName}</p>
-                        )}
-                        </div>
-                    </div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Donation Amount ($)</label>
+                  <input name="donationAmount" required type="number" min="1" className="w-full rounded-lg border-slate-300 border px-4 py-2.5 bg-slate-100 focus:bg-white focus:ring-2 focus:ring-gold-400 focus:border-gold-400 outline-none transition-all" placeholder="100" />
                 </div>
 
                 <div className="pt-4">
                     <button type="submit" className="w-full bg-navy-800 text-white font-bold py-3.5 px-8 rounded-lg shadow-lg hover:bg-navy-700 transition-all flex justify-center items-center gap-2">
-                        Submit Contribution
+                        Submit Pledge
                     </button>
                 </div>
               </form>

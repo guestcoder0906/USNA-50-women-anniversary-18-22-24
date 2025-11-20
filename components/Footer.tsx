@@ -1,5 +1,5 @@
 import React from 'react';
-import { Anchor, Mail, MapPin, Phone, Lock } from 'lucide-react';
+import { Anchor, Mail, Linkedin, Lock } from 'lucide-react';
 
 const Footer: React.FC = () => {
   return (
@@ -21,13 +21,9 @@ const Footer: React.FC = () => {
           <div className="space-y-4">
             <h4 className="text-white font-bold uppercase tracking-wider text-sm">Contact</h4>
             <ul className="space-y-3 text-sm">
-              <li className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 text-gold-500 shrink-0" />
-                <span>Fluegel Alumni Center<br/>Annapolis, MD 21402</span>
-              </li>
               <li className="flex items-center gap-3">
-                <Phone className="w-5 h-5 text-gold-500 shrink-0" />
-                <span>Pamela Pitkin '82: 703-801-3221</span>
+                <Mail className="w-5 h-5 text-gold-500 shrink-0" />
+                <span><a href="https://www.linkedin.com/in/izabella-peralta-491589308" target="_blank" rel="noopener noreferrer" className="hover:text-gold-400 transition-colors flex items-center gap-2">Izabella Peralta '24 <Linkedin className="w-4 h-4" /></a></span>
               </li>
             </ul>
           </div>
