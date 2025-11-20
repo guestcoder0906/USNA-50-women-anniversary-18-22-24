@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PenTool, Megaphone, Heart, Send } from 'lucide-react';
+import { PenTool, Megaphone, Heart, Send, Loader2 } from 'lucide-react';
 import { saveSubmission } from '../services/storageService.ts';
 
 enum Tab {
@@ -10,15 +10,23 @@ enum Tab {
 
 const ShareStory: React.FC = () => {
   const [activeTab, setActiveTab] = useState<Tab>(Tab.NOMINATE);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
-      const formData = new FormData(e.currentTarget);
-      const data = Object.fromEntries(formData.entries());
-      
-      saveSubmission(activeTab, data);
-      alert("Submission received! Thank you for sharing.");
-      e.currentTarget.reset();
+      setIsSubmitting(true);
+      try {
+          const formData = new FormData(e.currentTarget);
+          const data = Object.fromEntries(formData.entries());
+          
+          await saveSubmission(activeTab, data);
+          alert("Submission received! Thank you for sharing.");
+          e.currentTarget.reset();
+      } catch (error) {
+          alert("An error occurred. Please try again.");
+      } finally {
+          setIsSubmitting(false);
+      }
   };
 
   const renderForm = () => {
@@ -46,7 +54,10 @@ const ShareStory: React.FC = () => {
                 <label className="text-sm font-medium text-slate-700">Upload Pictures/Video</label>
                 <input name="file" type="file" className="text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-navy-50 file:text-navy-700 hover:file:bg-navy-100"/>
              </div>
-            <button type="submit" className="btn-primary w-full">Submit Nomination</button>
+            <button type="submit" disabled={isSubmitting} className="btn-primary w-full flex justify-center items-center gap-2">
+                {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
+                {isSubmitting ? 'Uploading...' : 'Submit Nomination'}
+            </button>
           </form>
         );
       case Tab.SHOUTOUT:
@@ -59,7 +70,10 @@ const ShareStory: React.FC = () => {
             </div>
             <input name="recipient" required type="text" placeholder="Recipient's Initials and Class Year (Ex: IP '24)" className="input-field" />
             <textarea name="message" required rows={3} placeholder="Your Shoutout Message" className="input-field" />
-            <button type="submit" className="btn-primary w-full">Submit BZ Shoutout</button>
+            <button type="submit" disabled={isSubmitting} className="btn-primary w-full flex justify-center items-center gap-2">
+                {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
+                {isSubmitting ? 'Sending...' : 'Submit BZ Shoutout'}
+            </button>
           </form>
         );
       case Tab.HELLO:
@@ -72,7 +86,10 @@ const ShareStory: React.FC = () => {
             </div>
             <input name="initials" required type="text" placeholder="Recipient Initials and Class Year (Ex: IP '24)" className="input-field" />
             <textarea name="message" required rows={3} placeholder="Your Message" className="input-field" />
-            <button type="submit" className="btn-primary w-full">Send Message</button>
+            <button type="submit" disabled={isSubmitting} className="btn-primary w-full flex justify-center items-center gap-2">
+                 {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
+                 {isSubmitting ? 'Sending...' : 'Send Message'}
+            </button>
           </form>
         );
     }
@@ -106,6 +123,10 @@ const ShareStory: React.FC = () => {
             }
             .btn-primary:hover {
                 background-color: #1a365d;
+            }
+            .btn-primary:disabled {
+                opacity: 0.7;
+                cursor: not-allowed;
             }
         `}</style>
       <div className="max-w-4xl mx-auto px-4">

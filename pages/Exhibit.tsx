@@ -1,19 +1,25 @@
 import React, { useState } from 'react';
-import { Upload, Info, Clock, Mail, Heart, Linkedin } from 'lucide-react';
+import { Upload, Info, Clock, Mail, Heart, Linkedin, Loader2 } from 'lucide-react';
 import { saveSubmission } from '../services/storageService.ts';
 
 const Exhibit: React.FC = () => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const data = Object.fromEntries(formData.entries());
-    
-    saveSubmission('PLEDGE', data);
-    alert("Thank you for your pledge!");
-    
-    // Reset form
-    e.currentTarget.reset();
+    setIsSubmitting(true);
+    try {
+        const formData = new FormData(e.currentTarget);
+        const data = Object.fromEntries(formData.entries());
+        
+        await saveSubmission('PLEDGE', data);
+        alert("Thank you for your pledge!");
+        e.currentTarget.reset();
+    } catch (error) {
+        alert("Error submitting pledge. Please try again.");
+    } finally {
+        setIsSubmitting(false);
+    }
   };
 
   return (
@@ -88,8 +94,9 @@ const Exhibit: React.FC = () => {
                 </div>
 
                 <div className="pt-4">
-                    <button type="submit" className="w-full bg-navy-800 text-white font-bold py-3.5 px-8 rounded-lg shadow-lg hover:bg-navy-700 transition-all flex justify-center items-center gap-2">
-                        Submit Pledge
+                    <button type="submit" disabled={isSubmitting} className="w-full bg-navy-800 text-white font-bold py-3.5 px-8 rounded-lg shadow-lg hover:bg-navy-700 transition-all flex justify-center items-center gap-2 disabled:opacity-70">
+                        {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
+                        {isSubmitting ? 'Submitting...' : 'Submit Pledge'}
                     </button>
                 </div>
               </form>

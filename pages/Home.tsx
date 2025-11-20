@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar, MapPin, Users, User, Heart, Award, ArrowRight, PenTool, Clock, Mail, Megaphone } from 'lucide-react';
+import { Calendar, MapPin, Users, User, Heart, Award, ArrowRight, PenTool, Clock, Mail, Megaphone, Loader2 } from 'lucide-react';
 import { ScheduleItem, PageView } from '../types.ts';
 import { saveSubmission } from '../services/storageService.ts';
 
@@ -20,6 +20,10 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
   const [activeShareTab, setActiveShareTab] = useState<ShareStoryTab>(ShareStoryTab.NOMINATE);
   const [nominationFileName, setNominationFileName] = useState<string | null>(null);
   const [nominationFileBase64, setNominationFileBase64] = useState<string | null>(null);
+  
+  // Loading States
+  const [isSubmittingPledge, setIsSubmittingPledge] = useState(false);
+  const [isSubmittingStory, setIsSubmittingStory] = useState(false);
 
 
   const schedule: ScheduleItem[] = [
@@ -46,15 +50,21 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
   ];
 
   // --- Form Handlers ---
-  const handlePledgeSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handlePledgeSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const data = Object.fromEntries(formData.entries());
-    
-    saveSubmission('PLEDGE', data);
-    alert("Thank you for your pledge!");
-    
-    e.currentTarget.reset();
+    setIsSubmittingPledge(true);
+    try {
+        const formData = new FormData(e.currentTarget);
+        const data = Object.fromEntries(formData.entries());
+        
+        await saveSubmission('PLEDGE', data);
+        alert("Thank you for your pledge!");
+        e.currentTarget.reset();
+    } catch (error) {
+        alert("Something went wrong. Please try again.");
+    } finally {
+        setIsSubmittingPledge(false);
+    }
   };
 
   const handleNominationFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -70,27 +80,34 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
   };
 
 
-  const handleShareStorySubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleShareStorySubmit = async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
-      const formData = new FormData(e.currentTarget);
-      const data = Object.fromEntries(formData.entries());
-      
-      if (activeShareTab === ShareStoryTab.NOMINATE) {
-        delete data.file; // Remove original file object
-        if (nominationFileName) {
-          data.fileName = nominationFileName;
-        }
-        if (nominationFileBase64) {
-          data.imageBase64 = nominationFileBase64;
-        }
+      setIsSubmittingStory(true);
+      try {
+          const formData = new FormData(e.currentTarget);
+          const data = Object.fromEntries(formData.entries());
+          
+          if (activeShareTab === ShareStoryTab.NOMINATE) {
+            delete data.file; // Remove original file object
+            if (nominationFileName) {
+              data.fileName = nominationFileName;
+            }
+            if (nominationFileBase64) {
+              data.imageBase64 = nominationFileBase64;
+            }
+          }
+
+          await saveSubmission(activeShareTab, data);
+          alert("Submission received! Thank you for sharing.");
+          e.currentTarget.reset();
+
+          setNominationFileName(null);
+          setNominationFileBase64(null);
+      } catch (error) {
+          alert("Error submitting story. Please try again.");
+      } finally {
+          setIsSubmittingStory(false);
       }
-
-      saveSubmission(activeShareTab, data);
-      alert("Submission received! Thank you for sharing.");
-      e.currentTarget.reset();
-
-      setNominationFileName(null);
-      setNominationFileBase64(null);
   };
 
 
@@ -120,7 +137,10 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
                 <input name="file" type="file" onChange={handleNominationFileChange} className="text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-navy-50 file:text-navy-700 hover:file:bg-navy-100"/>
                 {nominationFileName && <p className="text-xs font-semibold text-green-600">Selected: {nominationFileName}</p>}
              </div>
-            <button type="submit" className="btn-primary w-full">Submit Nomination</button>
+            <button type="submit" disabled={isSubmittingStory} className="btn-primary w-full flex justify-center items-center gap-2">
+                {isSubmittingStory && <Loader2 className="w-4 h-4 animate-spin" />}
+                {isSubmittingStory ? 'Uploading...' : 'Submit Nomination'}
+            </button>
           </form>
         );
       case ShareStoryTab.SHOUTOUT:
@@ -133,7 +153,10 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
             </div>
             <input name="recipient" required type="text" placeholder="Recipient's Initials and Class Year (Ex: IP '24)" className="input-field" />
             <textarea name="message" required rows={3} placeholder="Your Shoutout Message" className="input-field" />
-            <button type="submit" className="btn-primary w-full">Submit BZ Shoutout</button>
+            <button type="submit" disabled={isSubmittingStory} className="btn-primary w-full flex justify-center items-center gap-2">
+                {isSubmittingStory && <Loader2 className="w-4 h-4 animate-spin" />}
+                {isSubmittingStory ? 'Sending...' : 'Submit BZ Shoutout'}
+            </button>
           </form>
         );
       case ShareStoryTab.HELLO:
@@ -146,7 +169,10 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
             </div>
             <input name="initials" required type="text" placeholder="Recipient Initials and Class Year (Ex: IP '24)" className="input-field" />
             <textarea name="message" required rows={3} placeholder="Your Message" className="input-field" />
-            <button type="submit" className="btn-primary w-full">Send Message</button>
+            <button type="submit" disabled={isSubmittingStory} className="btn-primary w-full flex justify-center items-center gap-2">
+                {isSubmittingStory && <Loader2 className="w-4 h-4 animate-spin" />}
+                {isSubmittingStory ? 'Sending...' : 'Send Message'}
+            </button>
           </form>
         );
     }
@@ -181,6 +207,10 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
             }
             .btn-primary:hover {
                 background-color: #1a365d;
+            }
+            .btn-primary:disabled {
+                opacity: 0.7;
+                cursor: not-allowed;
             }
         `}</style>
       {/* Hero Section */}
@@ -361,7 +391,10 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
                     <input name="donationAmount" required type="number" min="1" className="input-field" placeholder="100" />
                   </div>
                   <div className="pt-4">
-                      <button type="submit" className="w-full btn-primary py-3.5">Submit Pledge</button>
+                      <button type="submit" disabled={isSubmittingPledge} className="w-full btn-primary py-3.5 flex justify-center items-center gap-2">
+                        {isSubmittingPledge && <Loader2 className="w-4 h-4 animate-spin" />}
+                        {isSubmittingPledge ? 'Processing...' : 'Submit Pledge'}
+                      </button>
                   </div>
                 </form>
               </div>
