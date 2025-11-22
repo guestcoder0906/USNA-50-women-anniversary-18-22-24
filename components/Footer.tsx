@@ -1,5 +1,5 @@
 import React from 'react';
-import { Anchor, Mail, Linkedin, Lock } from 'lucide-react';
+import { Anchor, Mail, Linkedin } from 'lucide-react';
 
 const Footer: React.FC = () => {
   return (
@@ -41,12 +41,6 @@ const Footer: React.FC = () => {
         </div>
         <div className="mt-12 pt-8 border-t border-navy-800 text-center text-xs text-slate-500 flex flex-col md:flex-row justify-between items-center">
           <p>&copy; {new Date().getFullYear()} USNA Women 50th Anniversary. All rights reserved.</p>
-          <div className="mt-4 md:mt-0">
-            {/* This is the "hidden" admin link */}
-            <a href="#admin" onClick={(e) => { e.preventDefault(); window.location.hash = 'admin'; window.dispatchEvent(new HashChangeEvent("hashchange"))}} className="text-navy-800 hover:text-slate-600 flex items-center gap-1">
-                <Lock className="w-3 h-3" /> Admin
-            </a>
-          </div>
         </div>
       </div>
     </footer>

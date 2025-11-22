@@ -3,7 +3,6 @@ import Navigation from './components/Navigation.tsx';
 import Footer from './components/Footer.tsx';
 import Home from './pages/Home.tsx';
 import Register from './pages/Register.tsx';
-import Admin from './pages/Admin.tsx';
 import { PageView } from './types.ts';
 
 const App: React.FC = () => {
@@ -34,36 +33,12 @@ const App: React.FC = () => {
     }
   }, [currentView]);
 
-
-  // Listen for hash changes for simple routing (Admin)
-  useEffect(() => {
-    const handleHashChange = () => {
-        if (window.location.hash === '#admin') {
-            setCurrentView(PageView.ADMIN);
-        } else if (currentView === PageView.ADMIN) { // Navigating away from admin via back button
-            setCurrentView(PageView.HOME);
-            setActiveLink(PageView.HOME);
-        }
-    };
-    
-    window.addEventListener('hashchange', handleHashChange);
-    
-    // Check initial hash on load
-    if (window.location.hash === '#admin') {
-        setCurrentView(PageView.ADMIN);
-    }
-    
-    return () => window.removeEventListener('hashchange', handleHashChange);
-  }, [currentView]);
-
   const renderView = () => {
     switch (currentView) {
       case PageView.HOME:
         return <Home onNavigate={handleNavigate} />;
       case PageView.REGISTER:
         return <Register />;
-      case PageView.ADMIN:
-        return <Admin />;
       default:
         return <Home onNavigate={handleNavigate} />;
     }
@@ -71,15 +46,13 @@ const App: React.FC = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-50">
-      {currentView !== PageView.ADMIN && (
-        <Navigation activeLink={activeLink} onNavigate={handleNavigate} />
-      )}
+      <Navigation activeLink={activeLink} onNavigate={handleNavigate} />
       
       <main className="flex-grow">
         {renderView()}
       </main>
       
-      {currentView !== PageView.ADMIN && <Footer />}
+      <Footer />
       
     </div>
   );

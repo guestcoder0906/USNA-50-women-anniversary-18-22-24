@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { Calendar, MapPin, Users, User, Heart, Award, ArrowRight, PenTool, Clock, Mail, Megaphone, Loader2 } from 'lucide-react';
+import { Calendar, MapPin, User, Heart, Award, ArrowRight, PenTool, Megaphone } from 'lucide-react';
 import { ScheduleItem, PageView } from '../types.ts';
-import { saveSubmission } from '../services/storageService.ts';
 
 
 // --- Enums for consolidated forms ---
@@ -16,16 +15,9 @@ interface HomeProps {
 }
 
 const Home: React.FC<HomeProps> = ({ onNavigate }) => {
-  // State for Share Story Form
-  const [activeShareTab, setActiveShareTab] = useState<ShareStoryTab>(ShareStoryTab.NOMINATE);
-  const [nominationFileName, setNominationFileName] = useState<string | null>(null);
-  const [nominationFileBase64, setNominationFileBase64] = useState<string | null>(null);
+  // State for Share Story Form - Default to SHOUTOUT (first tab)
+  const [activeShareTab, setActiveShareTab] = useState<ShareStoryTab>(ShareStoryTab.SHOUTOUT);
   
-  // Loading States
-  const [isSubmittingPledge, setIsSubmittingPledge] = useState(false);
-  const [isSubmittingStory, setIsSubmittingStory] = useState(false);
-
-
   const schedule: ScheduleItem[] = [
     {
       day: "Thursday",
@@ -49,134 +41,57 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
     }
   ];
 
-  // --- Form Handlers ---
-  const handlePledgeSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setIsSubmittingPledge(true);
-    try {
-        const formData = new FormData(e.currentTarget);
-        const data = Object.fromEntries(formData.entries());
-        
-        await saveSubmission('PLEDGE', data);
-        alert("Thank you for your pledge!");
-        e.currentTarget.reset();
-    } catch (error) {
-        console.error(error);
-        alert("Could not save pledge. Please check your connection or configuration.");
-    } finally {
-        setIsSubmittingPledge(false);
-    }
-  };
-
-  const handleNominationFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files[0]) {
-      const file = event.target.files[0];
-      setNominationFileName(file.name);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setNominationFileBase64(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-
-  const handleShareStorySubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-      setIsSubmittingStory(true);
-      try {
-          const formData = new FormData(e.currentTarget);
-          const data = Object.fromEntries(formData.entries());
-          
-          if (activeShareTab === ShareStoryTab.NOMINATE) {
-            // Remove the File object as we can't serialize it easily, use Base64
-            delete data.file; 
-            if (nominationFileName) {
-              data.fileName = nominationFileName;
-            }
-            if (nominationFileBase64) {
-              data.imageBase64 = nominationFileBase64;
-            }
-          }
-
-          await saveSubmission(activeShareTab, data);
-          alert("Submission received! Thank you for sharing.");
-          e.currentTarget.reset();
-
-          setNominationFileName(null);
-          setNominationFileBase64(null);
-      } catch (error) {
-          console.error(error);
-          alert("Error submitting story. Please ensure API is configured.");
-      } finally {
-          setIsSubmittingStory(false);
-      }
-  };
-
-
   const renderShareStoryForm = () => {
     switch (activeShareTab) {
-      case ShareStoryTab.NOMINATE:
-        return (
-          <form onSubmit={handleShareStorySubmit} className="space-y-6 animate-fadeIn">
-            <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 mb-6">
-              <p className="text-blue-800 text-sm">
-                We are looking for inspiring, in-depth stories. Nominate a trailblazer (or yourself!) to be featured in a spotlight article.
-              </p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <input name="email" required type="email" placeholder="Your Email" className="input-field" />
-              <input name="nomineeName" required type="text" placeholder="Name of Nominee" className="input-field" />
-              <input name="major" type="text" placeholder="Major" className="input-field" />
-              <input name="sportsEcas" type="text" placeholder="Sports / ECAs" className="input-field" />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <input name="usnaBillets" type="text" placeholder="USNA Billets" className="input-field" />
-              <input name="serviceSelection" type="text" placeholder="Service Selection" className="input-field" />
-            </div>
-            <textarea name="reason" required rows={4} placeholder="Reason for Nomination (The Story)" className="input-field" />
-             <div className="flex flex-col space-y-2">
-                <label className="text-sm font-medium text-slate-700">Upload Pictures/Video</label>
-                <input name="file" type="file" onChange={handleNominationFileChange} className="text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-navy-50 file:text-navy-700 hover:file:bg-navy-100"/>
-                {nominationFileName && <p className="text-xs font-semibold text-green-600">Selected: {nominationFileName}</p>}
-             </div>
-            <button type="submit" disabled={isSubmittingStory} className="btn-primary w-full flex justify-center items-center gap-2">
-                {isSubmittingStory && <Loader2 className="w-4 h-4 animate-spin" />}
-                {isSubmittingStory ? 'Uploading to Canto...' : 'Submit Nomination'}
-            </button>
-          </form>
-        );
       case ShareStoryTab.SHOUTOUT:
         return (
-          <form onSubmit={handleShareStorySubmit} className="space-y-6 animate-fadeIn">
-             <div className="bg-gold-50 p-4 rounded-lg border border-gold-100 mb-6">
-              <p className="text-navy-800 text-sm">
-                "BZ" (Bravo Zulu) means "Well Done". Give a public congratulations to a classmate or fellow alumna!
-              </p>
+          <div className="w-full flex flex-col items-center animate-fadeIn">
+            <div className="w-full h-[800px] bg-slate-50 rounded-lg overflow-hidden border border-slate-200">
+                 <iframe 
+                    src="https://forms.gle/qCiQTnQsXkdagTZ27" 
+                    className="w-full h-full border-0"
+                    title="BZ Shoutout Form"
+                >Loading...</iframe>
             </div>
-            <input name="recipient" required type="text" placeholder="Recipient's Initials and Class Year (Ex: IP '24)" className="input-field" />
-            <textarea name="message" required rows={3} placeholder="Your Shoutout Message" className="input-field" />
-            <button type="submit" disabled={isSubmittingStory} className="btn-primary w-full flex justify-center items-center gap-2">
-                {isSubmittingStory && <Loader2 className="w-4 h-4 animate-spin" />}
-                {isSubmittingStory ? 'Sending...' : 'Submit BZ Shoutout'}
-            </button>
-          </form>
+          </div>
         );
       case ShareStoryTab.HELLO:
         return (
-          <form onSubmit={handleShareStorySubmit} className="space-y-6 animate-fadeIn">
-             <div className="bg-pink-50 p-4 rounded-lg border border-pink-100 mb-6">
-              <p className="text-pink-900 text-sm">
-                Send messages of love and support to midshipmen and alumnae serving around the globe.
-              </p>
+          <div className="w-full flex flex-col items-center animate-fadeIn">
+            <div className="w-full h-[800px] bg-slate-50 rounded-lg overflow-hidden border border-slate-200">
+                 <iframe 
+                    src="https://forms.gle/79XJxAtutYqH9Ajs8" 
+                    className="w-full h-full border-0"
+                    title="Hometown Hello Form"
+                >Loading...</iframe>
             </div>
-            <input name="initials" required type="text" placeholder="Recipient Initials and Class Year (Ex: IP '24)" className="input-field" />
-            <textarea name="message" required rows={3} placeholder="Your Message" className="input-field" />
-            <button type="submit" disabled={isSubmittingStory} className="btn-primary w-full flex justify-center items-center gap-2">
-                {isSubmittingStory && <Loader2 className="w-4 h-4 animate-spin" />}
-                {isSubmittingStory ? 'Sending...' : 'Send Message'}
-            </button>
-          </form>
+          </div>
+        );
+      case ShareStoryTab.NOMINATE:
+        return (
+          <div className="w-full min-h-[400px] flex flex-col items-center justify-center p-8 bg-slate-50 border border-slate-200 rounded-lg text-center">
+             <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-md mb-6">
+                 <PenTool className="w-8 h-8 text-navy-900" />
+             </div>
+             <h3 className="text-2xl font-serif font-bold text-navy-900 mb-3">Article Nomination Form</h3>
+             <p className="text-slate-600 max-w-lg mb-8 leading-relaxed">
+                 We are using Google Forms to collect detailed stories and file uploads. 
+                 <br/>
+                 Please open the form in a new secure window to proceed with your nomination.
+             </p>
+             <a 
+                 href="https://forms.gle/rghMCFg4nNXeQhU99" 
+                 target="_blank" 
+                 rel="noopener noreferrer"
+                 className="inline-flex items-center gap-2 bg-gold-500 text-navy-900 font-bold px-8 py-4 rounded-lg hover:bg-gold-400 transition-colors shadow-md"
+             >
+                 Launch Nomination Form <ArrowRight className="w-5 h-5" />
+             </a>
+             <p className="mt-6 text-sm text-slate-400 flex items-center gap-1">
+                 <span className="inline-block w-2 h-2 bg-green-500 rounded-full"></span>
+                 Secure Google Form
+             </p>
+          </div>
         );
     }
   };
@@ -217,28 +132,25 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
             }
         `}</style>
       {/* Hero Section */}
-      <section className="relative bg-navy-900 text-white py-20 lg:py-32 overflow-hidden">
-        <div className="absolute inset-0 opacity-20">
-             {/* Placeholder for a background image of the academy or abstract navy theme */}
-            <img src="everything.png" alt="Background" className="w-full h-full object-cover" />
-        </div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <div className="inline-block mb-4 px-4 py-1 rounded-full border border-gold-500 text-gold-400 text-sm font-semibold uppercase tracking-widest bg-navy-900/50 backdrop-blur-sm">
+      <section className="relative bg-navy-900 text-white py-24 lg:py-40 overflow-hidden">
+        
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div className="inline-block mb-4 px-4 py-1 rounded-full border border-gold-500 text-gold-400 text-sm font-semibold uppercase tracking-widest bg-navy-900/60 backdrop-blur-sm">
                 1976 - 2026
             </div>
-          <h1 className="text-4xl md:text-6xl font-serif font-bold tracking-tight mb-6 leading-tight">
+          <h1 className="text-4xl md:text-6xl font-serif font-bold tracking-tight mb-6 leading-tight drop-shadow-lg">
             Breaking Barriers <span className="text-gold-500 italic">&</span> Building Bonds
           </h1>
-          <p className="text-xl md:text-2xl text-slate-200 max-w-3xl mx-auto mb-10 font-light">
+          <p className="text-xl md:text-2xl text-slate-100 max-w-3xl mx-auto mb-10 font-light drop-shadow-md">
             Annual Gathering to Celebrate 50 Years of Women at the US Naval Academy.
           </p>
           
           <div className="flex flex-col sm:flex-row justify-center gap-4 text-sm md:text-base">
-            <div className="flex items-center justify-center gap-2 bg-white/10 backdrop-blur px-6 py-3 rounded-lg">
+            <div className="flex items-center justify-center gap-2 bg-navy-800/80 backdrop-blur px-6 py-3 rounded-lg border border-navy-700 shadow-lg">
               <Calendar className="w-5 h-5 text-gold-400" />
               <span>April 16-19, 2026</span>
             </div>
-            <div className="flex items-center justify-center gap-2 bg-white/10 backdrop-blur px-6 py-3 rounded-lg">
+            <div className="flex items-center justify-center gap-2 bg-navy-800/80 backdrop-blur px-6 py-3 rounded-lg border border-navy-700 shadow-lg">
               <MapPin className="w-5 h-5 text-gold-400" />
               <span>Annapolis, MD (FAC & NMCMS)</span>
             </div>
@@ -247,7 +159,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
           <div className="mt-12">
             <button 
                 onClick={() => onNavigate(PageView.REGISTER)}
-                className="bg-gold-500 text-navy-900 font-bold py-4 px-8 rounded-full shadow-lg hover:bg-gold-400 transition-all transform hover:-translate-y-1 hover:shadow-gold-500/20"
+                className="bg-gold-500 text-navy-900 font-bold py-4 px-8 rounded-full shadow-xl hover:bg-gold-400 transition-all transform hover:-translate-y-1 hover:shadow-gold-500/20"
             >
               Register Now
             </button>
@@ -367,40 +279,14 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
               If you are interested in supporting the event, take the pledge to donate for your class. In order to participate in the Sponsorship Challenge a class needs a minimum of $10K
             </p>
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-            <div className="lg:col-span-1 space-y-8">
-              {/* Deadlines & Contact */}
-            </div>
-            <div className="lg:col-span-2 flex justify-center">
-              <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12 border-t-4 border-gold-500">
-                <div className="flex items-center gap-3 mb-8">
-                  <div className="bg-navy-50 p-3 rounded-full"><Heart className="w-6 h-6 text-navy-800" /></div>
-                  <div>
-                    <h3 className="text-2xl font-bold text-navy-900">Take the pledge</h3>
-                    <p className="text-slate-500 text-sm">Support the Class Sponsorship Challenge.</p>
-                  </div>
-                </div>
-                <form onSubmit={handlePledgeSubmit} className="space-y-6">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Email Address</label>
-                    <input name="email" required type="email" className="input-field" placeholder="jane@example.com" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Class Year</label>
-                    <input name="classYear" required type="text" className="input-field" placeholder="Ex: '82 or '24" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Donation Amount ($)</label>
-                    <input name="donationAmount" required type="number" min="1" className="input-field" placeholder="100" />
-                  </div>
-                  <div className="pt-4">
-                      <button type="submit" disabled={isSubmittingPledge} className="w-full btn-primary py-3.5 flex justify-center items-center gap-2">
-                        {isSubmittingPledge && <Loader2 className="w-4 h-4 animate-spin" />}
-                        {isSubmittingPledge ? 'Processing...' : 'Submit Pledge'}
-                      </button>
-                  </div>
-                </form>
-              </div>
+          
+          <div className="flex justify-center">
+            <div className="w-full max-w-4xl bg-white rounded-2xl shadow-xl overflow-hidden border-t-4 border-gold-500">
+                <iframe 
+                    src="https://forms.gle/6aBpdwrMQ9wQFUc1A" 
+                    className="w-full h-[800px] md:h-[1200px] border-0"
+                    title="Class Sponsorship Form"
+                >Loading...</iframe>
             </div>
           </div>
         </div>
@@ -415,17 +301,20 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
           </div>
           <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200">
             <div className="flex flex-col md:flex-row border-b border-slate-200">
-               <button onClick={() => setActiveShareTab(ShareStoryTab.NOMINATE)} className={`flex-1 p-6 flex items-center justify-center gap-3 text-sm font-bold transition-all hover:bg-slate-50 ${activeShareTab === ShareStoryTab.NOMINATE ? 'text-navy-900 border-b-4 border-navy-900 bg-slate-50' : 'text-slate-500'}`}>
-                  <PenTool className="w-5 h-5" /> Article Nominations
-              </button>
-              <button onClick={() => setActiveShareTab(ShareStoryTab.SHOUTOUT)} className={`flex-1 p-6 flex items-center justify-center gap-3 text-sm font-bold transition-all hover:bg-slate-50 ${activeShareTab === ShareStoryTab.SHOUTOUT ? 'text-gold-600 border-b-4 border-gold-500 bg-slate-50' : 'text-slate-500'}`}>
+              {/* BZ Shoutout - Orange (First) */}
+              <button onClick={() => setActiveShareTab(ShareStoryTab.SHOUTOUT)} className={`flex-1 p-6 flex items-center justify-center gap-3 text-sm font-bold transition-all hover:bg-slate-50 ${activeShareTab === ShareStoryTab.SHOUTOUT ? 'text-orange-600 border-b-4 border-orange-500 bg-slate-50' : 'text-slate-500'}`}>
                   <Megaphone className="w-5 h-5" /> BZ Shoutout
               </button>
+              {/* Hometown Hello - Pink (Second) */}
               <button onClick={() => setActiveShareTab(ShareStoryTab.HELLO)} className={`flex-1 p-6 flex items-center justify-center gap-3 text-sm font-bold transition-all hover:bg-slate-50 ${activeShareTab === ShareStoryTab.HELLO ? 'text-pink-600 border-b-4 border-pink-500 bg-slate-50' : 'text-slate-500'}`}>
                   <Heart className="w-5 h-5" /> Hometown Hello
               </button>
+              {/* Article Nomination - Navy (Third) */}
+               <button onClick={() => setActiveShareTab(ShareStoryTab.NOMINATE)} className={`flex-1 p-6 flex items-center justify-center gap-3 text-sm font-bold transition-all hover:bg-slate-50 ${activeShareTab === ShareStoryTab.NOMINATE ? 'text-navy-900 border-b-4 border-navy-900 bg-slate-50' : 'text-slate-500'}`}>
+                  <PenTool className="w-5 h-5" /> Article Nominations
+              </button>
             </div>
-            <div className="p-8 md:p-12">
+            <div className="p-0">
               {renderShareStoryForm()}
             </div>
           </div>

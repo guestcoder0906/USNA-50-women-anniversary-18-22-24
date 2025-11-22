@@ -2,8 +2,7 @@ export enum PageView {
   HOME = 'HOME',
   EXHIBIT = 'EXHIBIT',
   SHARE_STORY = 'SHARE_STORY',
-  REGISTER = 'REGISTER',
-  ADMIN = 'ADMIN'
+  REGISTER = 'REGISTER'
 }
 
 export interface NavItem {
