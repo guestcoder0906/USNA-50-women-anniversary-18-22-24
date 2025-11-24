@@ -23,7 +23,11 @@ const Footer: React.FC = () => {
             <ul className="space-y-3 text-sm">
               <li className="flex items-center gap-3">
                 <Mail className="w-5 h-5 text-gold-500 shrink-0" />
-                <span><a href="https://www.linkedin.com/in/izabella-peralta-491589308" target="_blank" rel="noopener noreferrer" className="hover:text-gold-400 transition-colors flex items-center gap-2">Izabella Peralta '24 <Linkedin className="w-4 h-4" /></a></span>
+                <a href="mailto:Izabella@usnawomen.com" className="hover:text-gold-400 transition-colors">Izabella@usnawomen.com</a>
+              </li>
+              <li className="flex items-center gap-3">
+                <Linkedin className="w-5 h-5 text-gold-500 shrink-0" />
+                <a href="https://www.linkedin.com/in/izabella-peralta-491589308" target="_blank" rel="noopener noreferrer" className="hover:text-gold-400 transition-colors">Izabella Peralta '24</a>
               </li>
             </ul>
           </div>

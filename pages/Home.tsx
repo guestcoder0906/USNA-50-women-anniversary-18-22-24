@@ -270,30 +270,8 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
         </div>
       </section>
 
-      {/* --- Exhibit Form Section (NEW) --- */}
-      <section id="exhibit-section" className="bg-slate-50 py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-serif font-bold text-navy-900 mb-4">Class Sponsorship Challenge</h2>
-            <p className="text-lg text-slate-600 max-w-3xl mx-auto">
-              If you are interested in supporting the event, take the pledge to donate for your class. In order to participate in the Sponsorship Challenge a class needs a minimum of $10K
-            </p>
-          </div>
-          
-          <div className="flex justify-center">
-            <div className="w-full max-w-4xl bg-white rounded-2xl shadow-xl overflow-hidden border-t-4 border-gold-500">
-                <iframe 
-                    src="https://forms.gle/6aBpdwrMQ9wQFUc1A" 
-                    className="w-full h-[800px] md:h-[1200px] border-0"
-                    title="Class Sponsorship Form"
-                >Loading...</iframe>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* --- Share Story Form Section (NEW) --- */}
-      <section id="share-story-section" className="bg-white py-16">
+      {/* --- Share Story Form Section (MOVED UP) --- */}
+      <section id="share-story-section" className="bg-slate-50 py-16">
         <div className="max-w-4xl mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-serif font-bold text-navy-900 mb-4">Class Spotlight</h2>
@@ -316,6 +294,28 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
             </div>
             <div className="p-0">
               {renderShareStoryForm()}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* --- Exhibit Form Section (MOVED DOWN) --- */}
+      <section id="exhibit-section" className="bg-white py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-serif font-bold text-navy-900 mb-4">Class Sponsorship Challenge</h2>
+            <p className="text-lg text-slate-600 max-w-3xl mx-auto">
+              If you are interested in supporting the event, take the pledge to donate for your class. In order to participate in the Sponsorship Challenge a class needs a minimum of $10K
+            </p>
+          </div>
+          
+          <div className="flex justify-center">
+            <div className="w-full max-w-4xl bg-white rounded-2xl shadow-xl overflow-hidden border-t-4 border-gold-500">
+                <iframe 
+                    src="https://forms.gle/6aBpdwrMQ9wQFUc1A" 
+                    className="w-full h-[800px] md:h-[1200px] border-0"
+                    title="Class Sponsorship Form"
+                >Loading...</iframe>
             </div>
           </div>
         </div>
